@@ -12,7 +12,7 @@ import { cleanUrl } from './utils'
 
 const debug = require('debug')('vite:esbuild')
 
-export const tjsxRE = /\.(tsx?|jsx)$/
+export const tjsxRE = /\.(tsx?|jsx?)$/
 
 export const vueJsxPublicPath = '/vite/jsx'
 
@@ -71,8 +71,15 @@ export const transform = async (
 ) => {
   const service = await ensureService()
   const file = cleanUrl(request)
+  const ext = path.extname(file)
   options = {
-    loader: options.loader || (path.extname(file).slice(1) as Loader),
+    loader:
+      options.loader ??
+      (('.js' === ext
+        ? 'jsx'
+        : '.ts' === ext
+        ? 'tsx'
+        : ext.slice(1)) as Loader),
     sourcemap: true,
     // ensure source file name contains full query
     sourcefile: request,
